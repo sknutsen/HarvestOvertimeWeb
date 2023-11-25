@@ -1,0 +1,43 @@
+package view
+
+import "fmt"
+import "github.com/sknutsen/harvestovertimelib/models"
+
+templ Hello(name string) {
+    <div>
+        hello {name}
+    </div>
+}
+
+templ Index(signedIn bool, settings models.Settings) {
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <title>Harvest Overtime</title>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link href="/assets/index.css" rel="stylesheet" />
+            <script type="module" src="/assets/bundle.js" />
+            <script src="https://unpkg.com/htmx.org/dist/htmx.min.js" />
+        </head>
+        <body>
+            <div id="hours-div"></div>
+            <form id="form" hx-post="/hours/get" hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
+                if signedIn {
+                    <label for="carryOverTime-input">Hours to carry over from last year</label>
+                    <input value={fmt.Sprint(settings.CarryOverTime)} id="carryOverTime-input"  name="carryOverTime" />
+                    <button type="submit">Get Hours</button>
+                }
+                else {
+                    <a href="/hours">Sign in</a>
+                }
+            </form>
+        </body>
+    </html>
+}
+
+templ Hours(overtime float64) {
+    <div id="hours-div">
+        You have {fmt.Sprint(overtime)} hours of overtime
+    </div>
+}
