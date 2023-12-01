@@ -1,7 +1,7 @@
 package view
 
 import "fmt"
-import "github.com/sknutsen/harvestovertimelib/models"
+import "github.com/sknutsen/harvestovertimelib/v2/models"
 
 templ Hello(name string) {
     <div>
@@ -9,7 +9,7 @@ templ Hello(name string) {
     </div>
 }
 
-templ Index(signedIn bool, settings models.Settings) {
+templ Index(signedIn bool, tasks []models.Task, settings models.Settings) {
     <!DOCTYPE html>
     <html lang="en">
         <head>
@@ -24,8 +24,9 @@ templ Index(signedIn bool, settings models.Settings) {
             <div id="hours-div"></div>
             <form id="form" hx-post="/hours/get" hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
                 if signedIn {
-                    <label for="carryOverTime-input">Hours to carry over from last year</label>
-                    <input value={fmt.Sprint(settings.CarryOverTime)} id="carryOverTime-input"  name="carryOverTime" />
+                    // <label for="carryOverTime-input">Hours to carry over from last year</label>
+                    // <input value={fmt.Sprint(settings.CarryOverTime)} id="carryOverTime-input"  name="carryOverTime" />
+                    @TimeOffTasks(tasks, settings.TimeOffTasks)
                     <button type="submit">Get Hours</button>
                 }
                 else {
@@ -39,5 +40,16 @@ templ Index(signedIn bool, settings models.Settings) {
 templ Hours(overtime float64) {
     <div id="hours-div">
         You have {fmt.Sprint(overtime)} hours of overtime
+    </div>
+}
+
+templ TimeOffTasks(tasks []models.Task, timeOffTasks []models.Task) {
+    <div id="time-off-tasks">
+        <label for="time-off-tasks__select">Select time off hours (hold ctrl to select multiple)</label>
+        <select id="time-off-tasks__select" name="timeOffTasks" multiple>
+            for _, task := range tasks {
+                <option value={fmt.Sprint(task.ID)}>{task.Name}</option>
+            }
+        </select>
     </div>
 }

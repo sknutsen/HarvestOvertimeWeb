@@ -31,7 +31,16 @@ form {
 
 form input,
 form label {
-  display: none;
+  /* display: none; */
+}
+
+label {
+  display: block;
+}
+
+#time-off-tasks {
+  display: flex;
+  flex-direction: column;
 }
 
 form button {

@@ -15,8 +15,9 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/sknutsen/harvestovertimelib"
-	libmodels "github.com/sknutsen/harvestovertimelib/models"
+	"github.com/sknutsen/harvestovertimelib/v2"
+	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
+	"github.com/sknutsen/harvestovertimeweb/lib"
 	"github.com/sknutsen/harvestovertimeweb/models"
 	"github.com/sknutsen/harvestovertimeweb/view"
 )
@@ -42,15 +43,24 @@ func main() {
 	e.Static("/assets", "assets")
 
 	e.GET("/", func(c echo.Context) error {
-		_, err := c.Cookie("accesstoken")
+		token, err := c.Cookie("accesstoken")
 
 		if err != nil {
 			return c.Redirect(http.StatusTemporaryRedirect, "/hours")
 		}
 
-		settings := libmodels.Settings{}
+		settings := libmodels.Settings{
+			AccessToken: token.Value,
+		}
 
-		component := view.Index(true, settings)
+		tasks, err := harvestovertimelib.ListTasks(client, settings)
+
+		if err != nil {
+			tasks = []libmodels.Task{}
+			// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+		}
+
+		component := view.Index(true, tasks, settings)
 		return component.Render(context.Background(), c.Response().Writer)
 	})
 
@@ -62,10 +72,17 @@ func main() {
 	e.POST("/hours/get", func(c echo.Context) error {
 		refreshTokenCookie, _ := c.Cookie("refreshtoken")
 
-		// c.FormValue("")
+		var getHoursRequest models.GetHoursRequest
+
+		err := c.Bind(&getHoursRequest)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "bad request")
+		}
+
+		fmt.Printf("Time off tasks len: %d\n", len(getHoursRequest.TimeOffTasks))
 		token, err := refreshToken(client, refreshTokenCookie.Value, clientId, clientSecret)
 		if err != nil {
-			component := view.Index(false, libmodels.Settings{})
+			component := view.Index(false, []libmodels.Task{}, libmodels.Settings{})
 			return component.Render(context.Background(), c.Response().Writer)
 
 		}
@@ -74,15 +91,28 @@ func main() {
 		SetCookie(c, "refreshtoken", token.RefreshToken, int(token.ExpiresIn))
 
 		settings := libmodels.Settings{
-			AccessToken:     token.AccessToken,
-			CarryOverTime:   0,
-			OnlyCurrentYear: true,
-			TimeOffTasks: []libmodels.Task{
-				{
-					Id:   10882012,
-					Name: "Avspasering",
-				},
+			AccessToken:              token.AccessToken,
+			CarryOverTime:            0,
+			WorkDayHours:             7.5,
+			DaysInWeek:               5,
+			ToDate:                   lib.DateToString(time.Now()),
+			SimulateFullWeekAtToDate: true,
+			WorkDays: []time.Weekday{
+				time.Monday,
+				time.Tuesday,
+				time.Wednesday,
+				time.Thursday,
+				time.Friday,
 			},
+			TimeOffTasks: []libmodels.Task{},
+		}
+
+		fmt.Printf("Current date: %s\n", settings.ToDate)
+
+		for _, taskId := range getHoursRequest.TimeOffTasks {
+			settings.TimeOffTasks = append(settings.TimeOffTasks, libmodels.Task{
+				ID: uint64(taskId),
+			})
 		}
 
 		entries, _ := harvestovertimelib.ListEntries(client, settings)
@@ -97,7 +127,7 @@ func main() {
 
 		token, err := newToken(client, authCode, clientId, clientSecret)
 		if err != nil {
-			component := view.Index(false, libmodels.Settings{})
+			component := view.Index(false, []libmodels.Task{}, libmodels.Settings{})
 			return component.Render(context.Background(), c.Response().Writer)
 
 		}
