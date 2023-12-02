@@ -50,7 +50,12 @@ func main() {
 		}
 
 		settings := libmodels.Settings{
-			AccessToken: token.Value,
+			AccessToken:              token.Value,
+			FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()),
+			ToDate:                   lib.DateToString(time.Now()),
+			DaysInWeek:               5,
+			WorkDayHours:             7.5,
+			SimulateFullWeekAtToDate: true,
 		}
 
 		tasks, err := harvestovertimelib.ListTasks(client, settings)
@@ -93,10 +98,11 @@ func main() {
 		settings := libmodels.Settings{
 			AccessToken:              token.AccessToken,
 			CarryOverTime:            0,
-			WorkDayHours:             7.5,
-			DaysInWeek:               5,
-			ToDate:                   lib.DateToString(time.Now()),
-			SimulateFullWeekAtToDate: true,
+			WorkDayHours:             getHoursRequest.WorkDayHours,
+			DaysInWeek:               getHoursRequest.DaysInWeek,
+			FromDate:                 getHoursRequest.FromDate,
+			ToDate:                   getHoursRequest.ToDate,
+			SimulateFullWeekAtToDate: getHoursRequest.SimulateFullWeekAtToDate,
 			WorkDays: []time.Weekday{
 				time.Monday,
 				time.Tuesday,
