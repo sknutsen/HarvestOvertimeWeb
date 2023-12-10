@@ -39,12 +39,11 @@ func main() {
 	e.Static(routes.Assets, "assets")
 
 	e.GET(routes.Index, h.Index)
+	e.GET(routes.Details, h.Details)
 
 	e.GET(routes.Auth, h.Auth)
-
-	e.POST(routes.Hours, h.GetOvertimeHours)
-
 	e.GET(routes.SigninCallback, h.Callback)
+	e.POST(routes.Hours, h.GetOvertimeHours)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", h.Port)))
 }

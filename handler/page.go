@@ -45,3 +45,30 @@ func (h *Handler) Index(c echo.Context) error {
 	component := view.Index(true, tasks, settings)
 	return component.Render(context.Background(), c.Response().Writer)
 }
+
+func (h *Handler) Details(c echo.Context) error {
+	token, err := c.Cookie("accesstoken")
+
+	if err != nil {
+		return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+	}
+
+	settings := libmodels.Settings{
+		AccessToken:              token.Value,
+		FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()),
+		ToDate:                   lib.DateToString(time.Now()),
+		DaysInWeek:               5,
+		WorkDayHours:             7.5,
+		SimulateFullWeekAtToDate: true,
+	}
+
+	entries, err := harvestovertimelib.ListEntries(h.Client, settings)
+
+	if err != nil {
+		entries = libmodels.TimeEntries{}
+		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+	}
+
+	component := view.Details(entries.TimeEntries)
+	return component.Render(context.Background(), c.Response().Writer)
+}

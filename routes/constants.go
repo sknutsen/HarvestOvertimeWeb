@@ -6,4 +6,5 @@ const (
 	Auth           string = "/auth"
 	Hours          string = "/hours"
 	SigninCallback string = "/signin_callback"
+	Details        string = "/details"
 )

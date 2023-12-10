@@ -1,0 +1,50 @@
+package view
+
+import "fmt"
+import "github.com/sknutsen/harvestovertimeweb/lib"
+import libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
+
+templ Details(entries []libmodels.TimeEntry) {
+	@MainLayout() {
+		<div class="details-page">
+			<div class="time-entries__header">
+				<div>
+					[Project] Task
+				</div>
+				<div>
+					Date
+				</div>
+				<div>
+					Hours
+				</div>
+			</div>
+			<div class="time-entries">
+				for _, e := range entries {
+					@TimeEntry(e)
+				}
+			</div>
+			<div class="time-entries__footer">
+				<div>
+					Total
+				</div>
+				<div>
+					{ fmt.Sprint(lib.SumHoursFromEntries(entries)) }
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ TimeEntry(entry libmodels.TimeEntry) {
+	<div class="time-entry">
+		<div>
+			[{ entry.Project.Name }] { entry.Task.Name }
+		</div>
+		<div>
+			{ entry.SpentDate }
+		</div>
+		<div>
+			{ fmt.Sprint(entry.Hours) }
+		</div>
+	</div>
+}

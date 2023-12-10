@@ -78,3 +78,109 @@ form button:hover {
   font-size: 40px;
   text-shadow: 2px 2px;
 }
+
+.time-entries {
+  height: calc(90vh - 50px);
+  width: 90vw;
+  max-width: 1600px;
+  overflow-y: scroll;
+  background-color: white;
+}
+
+.time-entry {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid lightgrey;
+}
+
+.time-entry:hover {
+  background-color: #f9f9f9;
+}
+
+.time-entry:last-child {
+  border-bottom: none;
+}
+
+.time-entry div {
+  /* width: 300px; */
+  text-align: right;
+  padding: 10px;
+  width: 33%;
+}
+
+.time-entry div:first-child {
+  text-align: left;
+  width: 34%;
+}
+
+.time-entries__header {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  justify-content: space-between;
+  border-bottom: 2px solid black;
+  padding-bottom: 10px;
+}
+
+.time-entries__header div {
+  text-align: right;
+  width: 33%;
+}
+
+.time-entries__header div:first-child {
+  text-align: left;
+  padding-left: 10px;
+  width: 34%;
+}
+
+.time-entries__header div:last-child {
+  padding-right: 27px;
+}
+
+.time-entries__footer {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+  justify-content: space-between;
+  border-top: 2px solid black;
+  padding-top: 10px;
+}
+
+.time-entries__footer div:first-child {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.time-entries__footer div:last-child {
+  text-align: right;
+  padding-right: 27px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: #101010;
+  font-weight: bold;
+  font-size: 18px;
+  border-bottom: 1px solid darkgray;
+}
+
+.navbar a {
+  display: inline-block;
+  text-decoration: none;
+  color: white;
+}
+
+.details-page {
+  height: 100%;
+  padding-top: 45px;
+}

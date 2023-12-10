@@ -41,3 +41,13 @@ func TaskIsSelected(task models.Task, tasks []models.Task) bool {
 
 	return false
 }
+
+func SumHoursFromEntries(entries []models.TimeEntry) float64 {
+	var sum float64 = 0
+
+	for _, e := range entries {
+		sum += e.Hours
+	}
+
+	return sum
+}
