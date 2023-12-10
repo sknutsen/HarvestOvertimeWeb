@@ -1,25 +1,16 @@
 package main
 
 import (
-	"bytes"
-	"context"
-	"encoding/gob"
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/sknutsen/harvestovertimelib/v2"
-	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
-	"github.com/sknutsen/harvestovertimeweb/lib"
-	"github.com/sknutsen/harvestovertimeweb/models"
-	"github.com/sknutsen/harvestovertimeweb/view"
+	"github.com/sknutsen/harvestovertimeweb/handler"
+	"github.com/sknutsen/harvestovertimeweb/routes"
 )
 
 var client *http.Client
@@ -30,216 +21,30 @@ func main() {
 		fmt.Printf("Could not load .env file. Err: %s\n", err)
 	}
 
-	clientId := os.Getenv("HARVEST_CLIENT_ID")
-	clientSecret := os.Getenv("HARVEST_CLIENT_SECRET")
-	port := os.Getenv("PORT")
-
 	client = &http.Client{Timeout: 10 * time.Second}
+
+	h := handler.Handler{
+		Client:       client,
+		ClientId:     os.Getenv("HARVEST_CLIENT_ID"),
+		ClientSecret: os.Getenv("HARVEST_CLIENT_SECRET"),
+		Port:         os.Getenv("PORT"),
+		Secret:       []byte(os.Getenv("SECRET")),
+	}
 
 	e := echo.New()
 
 	e.Use(middleware.Logger())
+	// e.Use(session.Middleware(sessions.NewCookieStore(h.Secret)))
 
-	e.Static("/assets", "assets")
+	e.Static(routes.Assets, "assets")
 
-	e.GET("/", func(c echo.Context) error {
-		token, err := c.Cookie("accesstoken")
+	e.GET(routes.Index, h.Index)
 
-		if err != nil {
-			return c.Redirect(http.StatusTemporaryRedirect, "/hours")
-		}
+	e.GET(routes.Auth, h.Auth)
 
-		settings := libmodels.Settings{
-			AccessToken:              token.Value,
-			FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()),
-			ToDate:                   lib.DateToString(time.Now()),
-			DaysInWeek:               5,
-			WorkDayHours:             7.5,
-			SimulateFullWeekAtToDate: true,
-		}
+	e.POST(routes.Hours, h.GetOvertimeHours)
 
-		tasks, err := harvestovertimelib.ListTasks(client, settings)
+	e.GET(routes.SigninCallback, h.Callback)
 
-		if err != nil {
-			tasks = []libmodels.Task{}
-			// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
-		}
-
-		component := view.Index(true, tasks, settings)
-		return component.Render(context.Background(), c.Response().Writer)
-	})
-
-	e.GET("/hours", func(c echo.Context) error {
-		url := fmt.Sprintf("https://id.getharvest.com/oauth2/authorize?client_id=%s&response_type=code", clientId)
-		return c.Redirect(http.StatusTemporaryRedirect, url)
-	})
-
-	e.POST("/hours/get", func(c echo.Context) error {
-		refreshTokenCookie, _ := c.Cookie("refreshtoken")
-
-		var getHoursRequest models.GetHoursRequest
-
-		err := c.Bind(&getHoursRequest)
-		if err != nil {
-			return c.String(http.StatusBadRequest, "bad request")
-		}
-
-		fmt.Printf("Time off tasks len: %d\n", len(getHoursRequest.TimeOffTasks))
-		token, err := refreshToken(client, refreshTokenCookie.Value, clientId, clientSecret)
-		if err != nil {
-			component := view.Index(false, []libmodels.Task{}, libmodels.Settings{})
-			return component.Render(context.Background(), c.Response().Writer)
-
-		}
-
-		SetCookie(c, "accesstoken", token.AccessToken, int(token.ExpiresIn))
-		SetCookie(c, "refreshtoken", token.RefreshToken, int(token.ExpiresIn))
-
-		settings := libmodels.Settings{
-			AccessToken:              token.AccessToken,
-			CarryOverTime:            0,
-			WorkDayHours:             getHoursRequest.WorkDayHours,
-			DaysInWeek:               getHoursRequest.DaysInWeek,
-			FromDate:                 getHoursRequest.FromDate,
-			ToDate:                   getHoursRequest.ToDate,
-			SimulateFullWeekAtToDate: getHoursRequest.SimulateFullWeekAtToDate,
-			WorkDays: []time.Weekday{
-				time.Monday,
-				time.Tuesday,
-				time.Wednesday,
-				time.Thursday,
-				time.Friday,
-			},
-			TimeOffTasks: []libmodels.Task{},
-		}
-
-		fmt.Printf("Current date: %s\n", settings.ToDate)
-
-		for _, taskId := range getHoursRequest.TimeOffTasks {
-			settings.TimeOffTasks = append(settings.TimeOffTasks, libmodels.Task{
-				ID: uint64(taskId),
-			})
-		}
-
-		entries, _ := harvestovertimelib.ListEntries(client, settings)
-		hours := harvestovertimelib.GetTotalOvertime(entries, settings)
-
-		component := view.Hours(hours)
-		return component.Render(context.Background(), c.Response().Writer)
-	})
-
-	e.GET("/signin_callback", func(c echo.Context) error {
-		authCode := c.QueryParam("code")
-
-		token, err := newToken(client, authCode, clientId, clientSecret)
-		if err != nil {
-			component := view.Index(false, []libmodels.Task{}, libmodels.Settings{})
-			return component.Render(context.Background(), c.Response().Writer)
-
-		}
-
-		var buf bytes.Buffer
-
-		err = gob.NewEncoder(&buf).Encode(&token)
-		if err != nil {
-			return err
-		}
-
-		SetCookie(c, "accesstoken", token.AccessToken, int(token.ExpiresIn))
-		SetCookie(c, "refreshtoken", token.RefreshToken, int(token.ExpiresIn))
-
-		fmt.Printf("Token expires in: %d\n", token.ExpiresIn)
-
-		return c.Redirect(http.StatusPermanentRedirect, "/")
-	})
-
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
-}
-
-func newToken(
-	client *http.Client,
-	code string,
-	clientId string,
-	clientSecret string,
-) (models.HarvestToken, error) {
-	body := url.Values{
-		"client_id":     {clientId},
-		"client_secret": {clientSecret},
-		"code":          {code},
-		"grant_type":    {"authorization_code"},
-	}
-
-	url := "https://id.getharvest.com/api/v2/oauth2/token"
-
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(body.Encode()))
-	if err != nil {
-		println("Error creating request: " + err.Error())
-		return models.HarvestToken{}, err
-	}
-
-	return getToken(req, client)
-}
-
-func refreshToken(
-	client *http.Client,
-	refreshToken string,
-	clientId string,
-	clientSecret string,
-) (models.HarvestToken, error) {
-	body := url.Values{
-		"client_id":     {clientId},
-		"client_secret": {clientSecret},
-		"refresh_token": {refreshToken},
-		"grant_type":    {"refresh_token"},
-	}
-
-	url := "https://id.getharvest.com/api/v2/oauth2/token"
-
-	req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(body.Encode()))
-	if err != nil {
-		println("Error creating request: " + err.Error())
-		return models.HarvestToken{}, err
-	}
-
-	return getToken(req, client)
-}
-
-func getToken(req *http.Request, client *http.Client) (models.HarvestToken, error) {
-	var token models.HarvestToken
-
-	req.Header.Add("User-Agent", os.Getenv("USER_AGENT"))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept", "*/*")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		println("Error sending request: " + err.Error())
-		return models.HarvestToken{}, err
-	}
-
-	defer resp.Body.Close()
-
-	err = json.NewDecoder(resp.Body).Decode(&token)
-	if err != nil {
-		println("Error decoding response: " + err.Error())
-		return models.HarvestToken{}, err
-	}
-
-	return token, nil
-}
-
-func SetCookie(
-	c echo.Context,
-	key string,
-	value string,
-	maxAge int,
-) {
-	cookie := &http.Cookie{
-		Name:   key,
-		Value:  value,
-		MaxAge: maxAge,
-		Path:   "/",
-	}
-
-	c.SetCookie(cookie)
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", h.Port)))
 }

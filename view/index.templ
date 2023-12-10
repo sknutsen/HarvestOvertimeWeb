@@ -2,6 +2,8 @@ package view
 
 import "fmt"
 import "github.com/sknutsen/harvestovertimelib/v2/models"
+import "github.com/sknutsen/harvestovertimeweb/routes"
+import "github.com/sknutsen/harvestovertimeweb/lib"
 
 templ Hello(name string) {
     <div>
@@ -16,20 +18,20 @@ templ Index(signedIn bool, tasks []models.Task, settings models.Settings) {
             <title>Harvest Overtime</title>
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link href="/assets/index.css?ver=7" rel="stylesheet" />
+            <link href="/assets/index.css?ver=15" rel="stylesheet" />
             <script type="module" src="/assets/bundle.js" />
             <script src="https://unpkg.com/htmx.org/dist/htmx.min.js" />
         </head>
         <body>
             <div id="hours-div"></div>
-            <form id="form" hx-post="/hours/get" hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
+            <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
                 if signedIn {
                     <h2>Calculate overtime hours</h2>
                     <label for="fromDate-input">From date</label>
                     <input type="date" value={fmt.Sprint(settings.FromDate)} id="fromDate-input" name="fromDate" />
                     <label for="toDate-input">To date</label>
                     <input type="date" value={fmt.Sprint(settings.ToDate)} id="toDate-input" required name="toDate" />
-                    <label for="daysInWeek-input">Number of days in week</label>
+                    <label for="daysInWeek-input">Number of work days in week</label>
                     <input type="number" value={fmt.Sprint(settings.DaysInWeek)} id="daysInWeek-input" required name="daysInWeek" />
                     <label for="workDayHours-input">Number of hours in work day</label>
                     <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
@@ -53,11 +55,14 @@ templ Hours(overtime float64) {
 
 templ TimeOffTasks(tasks []models.Task, timeOffTasks []models.Task) {
     <div id="time-off-tasks">
-        <label for="time-off-tasks__select">Select time off hours (hold ctrl to select multiple)</label>
-        <select id="time-off-tasks__select" name="timeOffTasks" multiple>
+        <label>Select time off hours</label>
+        <div id="time-off-tasks__list">
             for _, task := range tasks {
-                <option value={fmt.Sprint(task.ID)}>{task.Name}</option>
+                <div class="time-off-task">
+                    <label for={fmt.Sprintf("time-off-task__%d", task.ID)}>{task.Name}</label>
+                    <input type="checkbox" value={fmt.Sprint(task.ID)} checked?={lib.TaskIsSelected(task, timeOffTasks)} id={fmt.Sprintf("time-off-task__%d", task.ID)} name="timeOffTasks" />
+                </div>
             }
-        </select>
+        </div>
     </div>
 }

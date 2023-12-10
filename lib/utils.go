@@ -3,6 +3,8 @@ package lib
 import (
 	"fmt"
 	"time"
+
+	"github.com/sknutsen/harvestovertimelib/v2/models"
 )
 
 func DateToString(date time.Time) string {
@@ -28,4 +30,14 @@ func DateToString(date time.Time) string {
 	dateAsString := fmt.Sprintf("%d-%s-%s", year, monthString, dayString)
 
 	return dateAsString
+}
+
+func TaskIsSelected(task models.Task, tasks []models.Task) bool {
+	for _, t := range tasks {
+		if t.ID == task.ID {
+			return true
+		}
+	}
+
+	return false
 }
