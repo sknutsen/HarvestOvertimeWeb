@@ -6,51 +6,40 @@ import "github.com/sknutsen/harvestovertimeweb/routes"
 import "github.com/sknutsen/harvestovertimeweb/lib"
 
 templ Hello(name string) {
-    <div>
-        hello {name}
-    </div>
+	<div>
+		hello { name }
+	</div>
 }
 
 templ Index(signedIn bool, tasks []models.Task, settings models.Settings) {
-    <!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <title>Harvest Overtime</title>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link href="/assets/index.css?ver=15" rel="stylesheet" />
-            <script type="module" src="/assets/bundle.js" />
-            <script src="https://unpkg.com/htmx.org/dist/htmx.min.js" />
-        </head>
-        <body>
-            <div id="hours-div"></div>
-            <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
-                if signedIn {
-                    <h2>Calculate overtime hours</h2>
-                    <label for="fromDate-input">From date</label>
-                    <input type="date" value={fmt.Sprint(settings.FromDate)} id="fromDate-input" name="fromDate" />
-                    <label for="toDate-input">To date</label>
-                    <input type="date" value={fmt.Sprint(settings.ToDate)} id="toDate-input" required name="toDate" />
-                    <label for="daysInWeek-input">Number of work days in week</label>
-                    <input type="number" value={fmt.Sprint(settings.DaysInWeek)} id="daysInWeek-input" required name="daysInWeek" />
-                    <label for="workDayHours-input">Number of hours in work day</label>
-                    <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
-                    <label for="simulateFullWeekAtToDate-input">Simulate full week at to date</label>
-                    <input type="checkbox" value={fmt.Sprint(settings.SimulateFullWeekAtToDate)} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
-                    @TimeOffTasks(tasks, settings.TimeOffTasks)
-                    <button type="submit">Get Hours</button>
-                } else {
-                    <a href="/hours">Sign in</a>
-                }
-            </form>
-        </body>
-    </html>
+    @MainLayout() {
+        <div id="hours-div"></div>
+        <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
+            if signedIn {
+                <h2>Calculate overtime hours</h2>
+                <label for="fromDate-input">From date</label>
+                <input type="date" value={fmt.Sprint(settings.FromDate)} id="fromDate-input" name="fromDate" />
+                <label for="toDate-input">To date</label>
+                <input type="date" value={fmt.Sprint(settings.ToDate)} id="toDate-input" required name="toDate" />
+                <label for="daysInWeek-input">Number of work days in week</label>
+                <input type="number" value={fmt.Sprint(settings.DaysInWeek)} id="daysInWeek-input" required name="daysInWeek" />
+                <label for="workDayHours-input">Number of hours in work day</label>
+                <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
+                <label for="simulateFullWeekAtToDate-input">Simulate full week at to date</label>
+                <input type="checkbox" value={fmt.Sprint(settings.SimulateFullWeekAtToDate)} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
+                @TimeOffTasks(tasks, settings.TimeOffTasks)
+                <button type="submit">Get Hours</button>
+            } else {
+                <a href="/hours">Sign in</a>
+            }
+        </form>
+    }
 }
 
 templ Hours(overtime float64) {
-    <div id="hours-div">
-        You have {fmt.Sprint(overtime)} hours of overtime
-    </div>
+	<div id="hours-div">
+		You have { fmt.Sprint(overtime) } hours of overtime
+	</div>
 }
 
 templ TimeOffTasks(tasks []models.Task, timeOffTasks []models.Task) {

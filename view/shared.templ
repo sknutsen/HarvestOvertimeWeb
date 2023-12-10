@@ -1,0 +1,26 @@
+package view
+
+templ MainLayout() {
+	<!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <title>Harvest Overtime</title>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <link href="/assets/index.css?ver=28" rel="stylesheet" />
+            <script type="module" src="/assets/bundle.js" />
+            <script src="https://unpkg.com/htmx.org/dist/htmx.min.js" />
+        </head>
+        <body>
+			@Nav()
+            { children... }
+        </body>
+    </html>
+}
+
+templ Nav() {
+	<div class="navbar">
+		<a href="/">Home</a>
+		<a href="/details">Details</a>
+	</div>
+}
