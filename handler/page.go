@@ -35,6 +35,15 @@ func (h *Handler) Index(c echo.Context) error {
 		},
 	}
 
+	userInfo, err := harvestovertimelib.GetUserInfo(h.Client, settings)
+
+	if err != nil {
+		userInfo = libmodels.UserInfo{}
+		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+	}
+
+	settings.UserId = userInfo.ID
+
 	tasks, err := harvestovertimelib.ListTasks(h.Client, settings)
 
 	if err != nil {
@@ -42,7 +51,7 @@ func (h *Handler) Index(c echo.Context) error {
 		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
 	}
 
-	component := view.Index(true, tasks, settings)
+	component := view.Index(true, tasks, settings, userInfo)
 	return component.Render(context.Background(), c.Response().Writer)
 }
 
@@ -56,11 +65,25 @@ func (h *Handler) Details(c echo.Context) error {
 	settings := libmodels.Settings{
 		AccessToken:              token.Value,
 		FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()),
-		ToDate:                   lib.DateToString(time.Now()),
+		ToDate:                   fmt.Sprintf("%d-12-31", time.Now().Year()),
 		DaysInWeek:               5,
 		WorkDayHours:             7.5,
 		SimulateFullWeekAtToDate: true,
+		TimeOffTasks: []libmodels.Task{
+			{
+				ID: 10882012,
+			},
+		},
 	}
+
+	userInfo, err := harvestovertimelib.GetUserInfo(h.Client, settings)
+
+	if err != nil {
+		userInfo = libmodels.UserInfo{}
+		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+	}
+
+	settings.UserId = userInfo.ID
 
 	entries, err := harvestovertimelib.ListEntries(h.Client, settings)
 
@@ -69,6 +92,8 @@ func (h *Handler) Details(c echo.Context) error {
 		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
 	}
 
-	component := view.Details(entries.TimeEntries)
+	filtered := harvestovertimelib.FilterTimeOffTasks(entries, settings)
+
+	component := view.Details(filtered, userInfo)
 	return component.Render(context.Background(), c.Response().Writer)
 }

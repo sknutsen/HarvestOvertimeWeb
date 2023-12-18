@@ -15,7 +15,7 @@ import "github.com/sknutsen/harvestovertimelib/v2/models"
 import "github.com/sknutsen/harvestovertimeweb/routes"
 import "github.com/sknutsen/harvestovertimeweb/lib"
 
-func Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings) templ.Component {
+func Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings, userInfo models.UserInfo) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -196,7 +196,7 @@ func Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings) 
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = MainLayout().Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = MainLayout(userInfo).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -110,6 +110,10 @@ form button:hover {
   width: 33%;
 }
 
+.time-entry--time-off div:last-child {
+  color: red;
+}
+
 .time-entry div:first-child {
   text-align: left;
   width: 34%;
@@ -160,7 +164,7 @@ form button:hover {
 
 .navbar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 20px;
   position: absolute;
@@ -169,15 +173,46 @@ form button:hover {
   right: 0;
   height: 40px;
   background-color: #101010;
+  color: white;
   font-weight: bold;
   font-size: 18px;
   border-bottom: 1px solid darkgray;
+  padding: 0 10px;
+}
+
+.navbar__left {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
+  width: 33%;
+}
+
+.navbar__center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* flex-grow: 2; */
+  gap: 20px;
+  width: 34%;
+}
+
+.navbar__right {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 20px;
+  width: 33%;
 }
 
 .navbar a {
   display: inline-block;
   text-decoration: none;
   color: white;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
 }
 
 .details-page {

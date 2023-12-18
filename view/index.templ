@@ -5,8 +5,8 @@ import "github.com/sknutsen/harvestovertimelib/v2/models"
 import "github.com/sknutsen/harvestovertimeweb/routes"
 import "github.com/sknutsen/harvestovertimeweb/lib"
 
-templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings) {
-    @MainLayout() {
+templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings, userInfo models.UserInfo) {
+    @MainLayout(userInfo) {
         <div id="hours-div"></div>
         <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
             if signedIn {

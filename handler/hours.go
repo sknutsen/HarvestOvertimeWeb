@@ -26,7 +26,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	fmt.Printf("Time off tasks len: %d\n", len(getHoursRequest.TimeOffTasks))
 	token, err := refreshToken(h.Client, refreshTokenCookie.Value, h.ClientId, h.ClientSecret)
 	if err != nil {
-		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{})
+		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{}, libmodels.UserInfo{})
 		return component.Render(context.Background(), c.Response().Writer)
 
 	}
@@ -59,6 +59,15 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 			ID: uint64(taskId),
 		})
 	}
+
+	userInfo, err := harvestovertimelib.GetUserInfo(h.Client, settings)
+
+	if err != nil {
+		userInfo = libmodels.UserInfo{}
+		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
+	}
+
+	settings.UserId = userInfo.ID
 
 	entries, _ := harvestovertimelib.ListEntries(h.Client, settings)
 	hours := harvestovertimelib.GetTotalOvertime(entries, settings)

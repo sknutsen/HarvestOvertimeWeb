@@ -28,7 +28,7 @@ func (h *Handler) Callback(c echo.Context) error {
 
 	token, err := newToken(h.Client, authCode, h.ClientId, h.ClientSecret)
 	if err != nil {
-		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{})
+		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{}, libmodels.UserInfo{})
 		return component.Render(context.Background(), c.Response().Writer)
 
 	}

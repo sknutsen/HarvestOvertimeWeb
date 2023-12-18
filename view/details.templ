@@ -3,9 +3,10 @@ package view
 import "fmt"
 import "github.com/sknutsen/harvestovertimeweb/lib"
 import libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
+import hol "github.com/sknutsen/harvestovertimelib/v2"
 
-templ Details(entries []libmodels.TimeEntry) {
-	@MainLayout() {
+templ Details(entries hol.FilteredTimeEntries, userInfo libmodels.UserInfo) {
+	@MainLayout(userInfo) {
 		<div class="details-page">
 			<div class="time-entries__header">
 				<div>
@@ -19,8 +20,11 @@ templ Details(entries []libmodels.TimeEntry) {
 				</div>
 			</div>
 			<div class="time-entries">
-				for _, e := range entries {
-					@TimeEntry(e)
+				for _, e := range entries.WorkHours {
+					@TimeEntry(e, false)
+				}
+				for _, e := range entries.TimeOff {
+					@TimeEntry(e, true)
 				}
 			</div>
 			<div class="time-entries__footer">
@@ -28,23 +32,31 @@ templ Details(entries []libmodels.TimeEntry) {
 					Total
 				</div>
 				<div>
-					{ fmt.Sprint(lib.SumHoursFromEntries(entries)) }
+					Time Off: { fmt.Sprint(lib.SumHoursFromEntries(entries.TimeOff)) }
+				</div>
+				<div>
+					Work hours: { fmt.Sprint(lib.SumHoursFromEntries(entries.WorkHours)) }
+				</div>
+				<div>
+					{ fmt.Sprint(lib.SumHoursFromEntries(entries.TimeOff)+lib.SumHoursFromEntries(entries.WorkHours)) }
 				</div>
 			</div>
 		</div>
 	}
 }
 
-templ TimeEntry(entry libmodels.TimeEntry) {
-	<div class="time-entry">
-		<div>
-			[{ entry.Project.Name }] { entry.Task.Name }
+templ TimeEntry(entry libmodels.TimeEntry, timeOff bool) {
+	if entry.Hours != 0 {
+		<div class={"time-entry", templ.KV("time-entry--time-off", timeOff)}>
+			<div>
+				[{ entry.Project.Name }] { entry.Task.Name }
+			</div>
+			<div>
+				{ entry.SpentDate }
+			</div>
+			<div>
+				{ fmt.Sprint(entry.Hours) }
+			</div>
 		</div>
-		<div>
-			{ entry.SpentDate }
-		</div>
-		<div>
-			{ fmt.Sprint(entry.Hours) }
-		</div>
-	</div>
+	}
 }
