@@ -26,7 +26,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	fmt.Printf("Time off tasks len: %d\n", len(getHoursRequest.TimeOffTasks))
 	token, err := refreshToken(h.Client, refreshTokenCookie.Value, h.ClientId, h.ClientSecret)
 	if err != nil {
-		component := view.Index(false, []libmodels.Task{}, libmodels.Settings{})
+		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{})
 		return component.Render(context.Background(), c.Response().Writer)
 
 	}

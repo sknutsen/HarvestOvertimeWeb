@@ -8,6 +8,8 @@ github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/gorilla/context v1.1.1 h1:AWwleXJkX/nhcU9bZSnZoi3h/qGYqQAGhq6zZe/aQW8=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
+github.com/gorilla/context v1.1.2 h1:WRkNAv2uoa03QNIc1A6u4O7DAGMUVoopZhkiXWA2V1o=
+github.com/gorilla/context v1.1.2/go.mod h1:KDPwT9i/MeWHiLl90fuTgrt4/wPcv75vFAZLaOOcbxM=
 github.com/gorilla/securecookie v1.1.2 h1:YCIWL56dvtr73r6715mJs5ZvhtnY73hBvEF8kXD8ePA=
 github.com/gorilla/securecookie v1.1.2/go.mod h1:NfCASbcHqRSY+3a8tlWJwsQap2VX5pwzwo4h3eOamfo=
 github.com/gorilla/sessions v1.2.2 h1:lqzMYz6bOfvn2WriPUjNByzeXIlVzURcPmgMczkmTjY=
@@ -31,6 +33,8 @@ github.com/sknutsen/harvestovertimelib v1.0.0 h1:8aW2gYB7OIhq8RzJXD9SXl+81HCwiNE
 github.com/sknutsen/harvestovertimelib v1.0.0/go.mod h1:tY7TJL6OYta15vAZf9TQ64QIVhmII6hVpoIcsLhY68g=
 github.com/sknutsen/harvestovertimelib/v2 v2.0.0 h1:RyQANi9DQh7EC6WIxHTM+/bwUOWuKaLWp2HvZe82PL4=
 github.com/sknutsen/harvestovertimelib/v2 v2.0.0/go.mod h1:Wal39GNw6OaBzYjSEylO32/QPM1jN+B4uCJjcwWMONE=
+github.com/sknutsen/harvestovertimelib/v2 v2.1.0 h1:NwpbWT4sOHfdmivCQjIDKiyqIaiOcoyncgJWZlLweqI=
+github.com/sknutsen/harvestovertimelib/v2 v2.1.0/go.mod h1:evHjMhEhqqfL0LtFSN5YXIGNFXchccPKYc1l/QdJ5HI=
 github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=

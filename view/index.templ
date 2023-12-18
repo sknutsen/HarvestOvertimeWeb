@@ -5,13 +5,7 @@ import "github.com/sknutsen/harvestovertimelib/v2/models"
 import "github.com/sknutsen/harvestovertimeweb/routes"
 import "github.com/sknutsen/harvestovertimeweb/lib"
 
-templ Hello(name string) {
-	<div>
-		hello { name }
-	</div>
-}
-
-templ Index(signedIn bool, tasks []models.Task, settings models.Settings) {
+templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings) {
     @MainLayout() {
         <div id="hours-div"></div>
         <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
@@ -25,8 +19,8 @@ templ Index(signedIn bool, tasks []models.Task, settings models.Settings) {
                 <input type="number" value={fmt.Sprint(settings.DaysInWeek)} id="daysInWeek-input" required name="daysInWeek" />
                 <label for="workDayHours-input">Number of hours in work day</label>
                 <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
-                <label for="simulateFullWeekAtToDate-input">Simulate full week at to date</label>
-                <input type="checkbox" value={fmt.Sprint(settings.SimulateFullWeekAtToDate)} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
+                <label for="simulateFullWeekAtToDate-input">Simulate full weeks</label>
+                <input type="checkbox" value={fmt.Sprint(settings.SimulateFullWeekAtToDate)} checked?={settings.SimulateFullWeekAtToDate} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
                 @TimeOffTasks(tasks, settings.TimeOffTasks)
                 <button type="submit">Get Hours</button>
             } else {
@@ -42,14 +36,14 @@ templ Hours(overtime float64) {
 	</div>
 }
 
-templ TimeOffTasks(tasks []models.Task, timeOffTasks []models.Task) {
+templ TimeOffTasks(tasks []models.TaskDetails, timeOffTasks []models.Task) {
     <div id="time-off-tasks">
         <label>Select time off hours</label>
         <div id="time-off-tasks__list">
             for _, task := range tasks {
                 <div class="time-off-task">
-                    <label for={fmt.Sprintf("time-off-task__%d", task.ID)}>{task.Name}</label>
-                    <input type="checkbox" value={fmt.Sprint(task.ID)} checked?={lib.TaskIsSelected(task, timeOffTasks)} id={fmt.Sprintf("time-off-task__%d", task.ID)} name="timeOffTasks" />
+                    <label for={fmt.Sprintf("time-off-task__%d", task.Task.ID)}>{task.Task.Name}</label>
+                    <input type="checkbox" value={fmt.Sprint(task.Task.ID)} checked?={lib.TaskIsSelected(task, timeOffTasks)} id={fmt.Sprintf("time-off-task__%d", task.Task.ID)} name="timeOffTasks" />
                 </div>
             }
         </div>

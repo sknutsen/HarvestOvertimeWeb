@@ -38,7 +38,7 @@ func (h *Handler) Index(c echo.Context) error {
 	tasks, err := harvestovertimelib.ListTasks(h.Client, settings)
 
 	if err != nil {
-		tasks = []libmodels.Task{}
+		tasks = []libmodels.TaskDetails{}
 		// return c.Redirect(http.StatusTemporaryRedirect, "/hours")
 	}
 

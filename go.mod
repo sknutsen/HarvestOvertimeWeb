@@ -6,12 +6,12 @@ require (
 	github.com/a-h/templ v0.2.476
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.3
-	github.com/sknutsen/harvestovertimelib/v2 v2.0.0
+	github.com/sknutsen/harvestovertimelib/v2 v2.1.0
 )
 
 require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/context v1.1.2 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gorilla/sessions v1.2.2 // indirect
 	github.com/labstack/echo-contrib v0.15.0 // indirect

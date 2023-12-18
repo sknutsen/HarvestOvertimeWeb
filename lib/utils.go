@@ -32,9 +32,9 @@ func DateToString(date time.Time) string {
 	return dateAsString
 }
 
-func TaskIsSelected(task models.Task, tasks []models.Task) bool {
+func TaskIsSelected(task models.TaskDetails, tasks []models.Task) bool {
 	for _, t := range tasks {
-		if t.ID == task.ID {
+		if t.ID == task.Task.ID {
 			return true
 		}
 	}
