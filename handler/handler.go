@@ -1,11 +1,17 @@
 package handler
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"github.com/sknutsen/harvestovertimelib/v2/models"
+	"github.com/sknutsen/harvestovertimeweb/lib"
 )
 
 type Handler struct {
@@ -33,6 +39,41 @@ func SetCookie(
 	}
 
 	c.SetCookie(cookie)
+}
+
+func StoreSettingsAsCookie(c echo.Context, settings models.Settings) {
+	data, err := json.Marshal(settings)
+	if err != nil {
+		println(err)
+		return
+	}
+
+	cookieval := base64.StdEncoding.EncodeToString(data)
+
+	SetCookie(c, "settings", cookieval, int(time.Hour*24*7))
+}
+
+func GetSettings(c echo.Context) models.Settings {
+	cookie, err := c.Cookie("settings")
+	if err != nil {
+		fmt.Printf("failed getting settings cookie %s\n", err)
+		return lib.DefaultSettings()
+	}
+
+	rawjson, err := base64.StdEncoding.DecodeString(cookie.Value)
+	if err != nil {
+		fmt.Printf("Could not decode string %s\n", err)
+	}
+
+	var val models.Settings = models.Settings{}
+
+	err = json.Unmarshal(rawjson, &val)
+	if err != nil {
+		fmt.Printf("failed parsing json %s\n", err)
+		return lib.DefaultSettings()
+	}
+
+	return val
 }
 
 func GetSessionVar(c echo.Context, key string) interface{} {

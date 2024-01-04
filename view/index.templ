@@ -20,7 +20,7 @@ templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings,
                 <label for="workDayHours-input">Number of hours in work day</label>
                 <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
                 <label for="simulateFullWeekAtToDate-input">Simulate full weeks</label>
-                <input type="checkbox" value={fmt.Sprint(settings.SimulateFullWeekAtToDate)} checked?={settings.SimulateFullWeekAtToDate} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
+                <input type="checkbox" value="true" checked?={settings.SimulateFullWeekAtToDate} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
                 @TimeOffTasks(tasks, settings.TimeOffTasks)
                 <button type="submit">Get Hours</button>
             } else {

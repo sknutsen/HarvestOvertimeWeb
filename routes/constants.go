@@ -1,10 +1,10 @@
 package routes
 
 const (
-	Assets         string = "/assets"
 	Index          string = "/"
+	Assets         string = "/assets"
 	Auth           string = "/auth"
+	Details        string = "/details"
 	Hours          string = "/hours"
 	SigninCallback string = "/signin_callback"
-	Details        string = "/details"
 )

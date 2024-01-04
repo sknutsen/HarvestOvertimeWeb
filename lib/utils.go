@@ -51,3 +51,18 @@ func SumHoursFromEntries(entries []models.TimeEntry) float64 {
 
 	return sum
 }
+
+func DefaultSettings() models.Settings {
+	return models.Settings{
+		FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()-2),
+		ToDate:                   DateToString(time.Now()),
+		DaysInWeek:               5,
+		WorkDayHours:             7.5,
+		SimulateFullWeekAtToDate: true,
+		TimeOffTasks: []models.Task{
+			{
+				ID: 10882012,
+			},
+		},
+	}
+}

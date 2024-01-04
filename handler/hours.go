@@ -52,8 +52,6 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 		TimeOffTasks: []libmodels.Task{},
 	}
 
-	fmt.Printf("Current date: %s\n", settings.ToDate)
-
 	for _, taskId := range getHoursRequest.TimeOffTasks {
 		settings.TimeOffTasks = append(settings.TimeOffTasks, libmodels.Task{
 			ID: uint64(taskId),
@@ -68,6 +66,8 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	}
 
 	settings.UserId = userInfo.ID
+
+	StoreSettingsAsCookie(c, settings)
 
 	entries, _ := harvestovertimelib.ListEntries(h.Client, settings)
 	hours := harvestovertimelib.GetTotalOvertime(entries, settings)
