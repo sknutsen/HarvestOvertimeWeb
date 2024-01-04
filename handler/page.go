@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sknutsen/harvestovertimelib/v2"
@@ -29,12 +31,17 @@ func (h *Handler) Index(c echo.Context) error {
 	}
 
 	settings.UserId = userInfo.ID
+	fromDate := settings.FromDate
+
+	settings.FromDate = fmt.Sprintf("%d-01-01", time.Now().Year()-2)
 
 	tasks, err := harvestovertimelib.ListTasks(h.Client, settings)
 
 	if err != nil {
 		tasks = []libmodels.TaskDetails{}
 	}
+
+	settings.FromDate = fromDate
 
 	component := view.Index(true, tasks, settings, userInfo)
 	return component.Render(context.Background(), c.Response().Writer)
