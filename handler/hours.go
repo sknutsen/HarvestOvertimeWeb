@@ -69,7 +69,18 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 
 	StoreSettingsAsCookie(c, settings)
 
-	entries, _ := harvestovertimelib.ListEntries(h.Client, settings)
+	entries, err := harvestovertimelib.ListEntries(h.Client, settings)
+
+	if err != nil {
+		entries = libmodels.TimeEntries{}
+	}
+
+	holidays, err := h.GetCalendarEvents()
+
+	if err == nil {
+		entries.TimeEntries = append(entries.TimeEntries, ConvertHolidaysToTimeEntries(settings, holidays)...)
+	}
+
 	hours := harvestovertimelib.GetTotalOvertime(entries, settings)
 
 	component := view.Hours(hours)

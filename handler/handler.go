@@ -19,6 +19,11 @@ type Handler struct {
 	ClientId     string
 	ClientSecret string
 	Port         string
+	Database     string
+	DbHost       string
+	DbUser       string
+	DbPass       string
+	DbPort       string
 	Secret       []byte
 }
 

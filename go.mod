@@ -8,6 +8,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo-contrib v0.15.0
 	github.com/labstack/echo/v4 v4.11.3
+	github.com/lib/pq v1.10.9
 	github.com/sknutsen/harvestovertimelib/v2 v2.1.0
 )
 

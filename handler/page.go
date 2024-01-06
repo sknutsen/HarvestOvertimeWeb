@@ -34,6 +34,7 @@ func (h *Handler) Index(c echo.Context) error {
 	fromDate := settings.FromDate
 
 	settings.FromDate = fmt.Sprintf("%d-01-01", time.Now().Year()-2)
+	settings.ToDate = fmt.Sprintf("%d-12-31", time.Now().Year())
 
 	tasks, err := harvestovertimelib.ListTasks(h.Client, settings)
 
@@ -71,6 +72,10 @@ func (h *Handler) Details(c echo.Context) error {
 	if err != nil {
 		entries = libmodels.TimeEntries{}
 	}
+
+	holidays, _ := h.GetCalendarEvents()
+
+	entries.TimeEntries = append(entries.TimeEntries, ConvertHolidaysToTimeEntries(settings, holidays)...)
 
 	filtered := harvestovertimelib.FilterTimeOffTasks(entries, settings)
 

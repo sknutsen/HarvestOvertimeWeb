@@ -28,6 +28,11 @@ func main() {
 		ClientId:     os.Getenv("HARVEST_CLIENT_ID"),
 		ClientSecret: os.Getenv("HARVEST_CLIENT_SECRET"),
 		Port:         os.Getenv("PORT"),
+		Database:     os.Getenv("DATABASE"),
+		DbHost:       os.Getenv("DB_HOST"),
+		DbUser:       os.Getenv("DB_USER"),
+		DbPass:       os.Getenv("DB_PASS"),
+		DbPort:       os.Getenv("DB_PORT"),
 		Secret:       []byte(os.Getenv("SECRET")),
 	}
 
