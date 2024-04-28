@@ -26,48 +26,68 @@ form {
   border: 2px solid gray;
   padding: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+  button {
+    display: block;
+    border: none;
+    width: 100%;
+    padding: 20px;
+    background-color: transparent;
+    font-size: 20px;
+    border-radius: 8px;
+    border: 2px solid gray;
+  }
+
+  button:hover {
+    background-color: #d0d0d0;
+  }
 }
 
 label {
   display: block;
 }
 
-#time-off-tasks {
+.multiselect {
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  .multiselect__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 200px;
+    overflow: auto;
+    font-weight: 400;
+    /* font-size: 11px; */
+  }
+
+  .multiselect__item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
 }
 
-#time-off-tasks__list {
-  display: flex;
-  flex-direction: column;
+#form__inputs {
+  display: grid;
   gap: 10px;
-  height: 200px;
-  overflow: auto;
-  font-weight: 400;
-  /* font-size: 11px; */
-}
+  grid-template-columns: 1fr 1fr 1fr;
 
-#time-off-tasks .time-off-task {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 0 10px;
-}
+  .form__input {
+    display: flex;
+    flex-direction: column;
 
-form button {
-  display: block;
-  border: none;
-  width: 100%;
-  padding: 20px;
-  background-color: transparent;
-  font-size: 20px;
-  border-radius: 8px;
-  border: 2px solid gray;
-}
+    /* input {
+      width: 100%;
+    } */
+  }
 
-form button:hover {
-  background-color: #d0d0d0;
+  /* .form__input--checkbox {
+    display: flex;
+    justify-content: space-between;
+  } */
 }
 
 #hours-div {
@@ -126,21 +146,21 @@ form button:hover {
   justify-content: space-between;
   border-bottom: 2px solid black;
   padding-bottom: 10px;
-}
 
-.time-entries__header div {
-  text-align: right;
-  width: 33%;
-}
+  div {
+    text-align: right;
+    width: 33%;
+  }
 
-.time-entries__header div:first-child {
-  text-align: left;
-  padding-left: 10px;
-  width: 34%;
-}
+  div:first-child {
+    text-align: left;
+    padding-left: 10px;
+    width: 34%;
+  }
 
-.time-entries__header div:last-child {
-  padding-right: 27px;
+  div:last-child {
+    padding-right: 27px;
+  }
 }
 
 .time-entries__footer {
@@ -150,16 +170,16 @@ form button:hover {
   justify-content: space-between;
   border-top: 2px solid black;
   padding-top: 10px;
-}
 
-.time-entries__footer div:first-child {
-  text-align: left;
-  padding-left: 10px;
-}
+  div:first-child {
+    text-align: left;
+    padding-left: 10px;
+  }
 
-.time-entries__footer div:last-child {
-  text-align: right;
-  padding-right: 27px;
+  div:last-child {
+    text-align: right;
+    padding-right: 27px;
+  }
 }
 
 .navbar {
@@ -178,6 +198,16 @@ form button:hover {
   font-size: 18px;
   border-bottom: 1px solid darkgray;
   padding: 0 10px;
+
+  a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 .navbar__left {
@@ -203,16 +233,6 @@ form button:hover {
   align-items: center;
   gap: 20px;
   width: 33%;
-}
-
-.navbar a {
-  display: inline-block;
-  text-decoration: none;
-  color: white;
-}
-
-.navbar a:hover {
-  text-decoration: underline;
 }
 
 .details-page {

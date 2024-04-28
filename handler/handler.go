@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -10,8 +11,8 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/sknutsen/harvestovertimelib/v2/models"
 	"github.com/sknutsen/harvestovertimeweb/lib"
+	"github.com/sknutsen/harvestovertimeweb/models"
 )
 
 type Handler struct {
@@ -25,6 +26,11 @@ type Handler struct {
 	DbPass       string
 	DbPort       string
 	Secret       []byte
+}
+
+func (h *Handler) ConnectToCalendarDatabase() (*sql.DB, error) {
+	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", h.DbHost, h.DbPort, h.DbUser, h.DbPass, h.Database)
+	return sql.Open("postgres", connectionString)
 }
 
 func SetCookie(

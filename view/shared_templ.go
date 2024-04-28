@@ -34,7 +34,7 @@ func MainLayout(userInfo models.UserInfo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"/assets/index.css?ver=35\" rel=\"stylesheet\"><script type=\"module\" src=\"/assets/bundle.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/htmx.min.js\"></script></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link href=\"/assets/index.css?ver=37\" rel=\"stylesheet\"><script type=\"module\" src=\"/assets/bundle.js\"></script><script src=\"https://unpkg.com/htmx.org/dist/htmx.min.js\"></script></head><body>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

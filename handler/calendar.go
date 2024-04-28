@@ -1,12 +1,15 @@
 package handler
 
 import (
-	"database/sql"
 	"fmt"
+	"slices"
+	"strconv"
 
 	_ "github.com/lib/pq"
-	"github.com/sknutsen/harvestovertimelib/v2/models"
+	liblib "github.com/sknutsen/harvestovertimelib/v2/lib"
+	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
 	"github.com/sknutsen/harvestovertimeweb/lib"
+	"github.com/sknutsen/harvestovertimeweb/models"
 )
 
 type Holiday struct {
@@ -19,9 +22,7 @@ type Holiday struct {
 func (h *Handler) GetCalendarEvents() ([]Holiday, error) {
 	var holidays []Holiday
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s", h.DbHost, h.DbPort, h.DbUser, h.DbPass, h.Database)
-
-	conn, err := sql.Open("postgres", connectionString)
+	conn, err := h.ConnectToCalendarDatabase()
 
 	if err != nil {
 		return holidays, err
@@ -60,15 +61,59 @@ func (h *Handler) GetCalendarEvents() ([]Holiday, error) {
 	return holidays, nil
 }
 
-func ConvertHolidaysToTimeEntries(settings models.Settings, holidays []Holiday) []models.TimeEntry {
-	var entries []models.TimeEntry = []models.TimeEntry{}
+func (h *Handler) GetCalendarYears() ([]int, error) {
+	var years []int
+
+	conn, err := h.ConnectToCalendarDatabase()
+
+	if err != nil {
+		return years, err
+	}
+
+	defer conn.Close()
+
+	rows, err := conn.Query("SELECT date FROM dates WHERE calendar = 'NO' ORDER BY date ASC")
+
+	if err != nil {
+		return years, err
+	}
+
+	defer rows.Close()
+
+	years = []int{}
+
+	for rows.Next() {
+		var date string
+
+		err = rows.Scan(&date)
+
+		if err != nil {
+			return years, err
+		}
+
+		year, err := strconv.Atoi(date[:4])
+
+		if err != nil {
+			return years, err
+		}
+
+		if !slices.Contains(years, year) {
+			years = append(years, year)
+		}
+	}
+
+	return years, nil
+}
+
+func ConvertHolidaysToTimeEntries(settings models.Settings, holidays []Holiday) []libmodels.TimeEntry {
+	var entries []libmodels.TimeEntry = []libmodels.TimeEntry{}
 
 	for _, holiday := range holidays {
-		if lib.DateIsValid(settings, holiday.Date) {
-			entries = append(entries, models.TimeEntry{
+		if slices.Contains(settings.Years, liblib.ParseDateString(holiday.Date).Year()) && lib.DateIsValid(settings, holiday.Date) {
+			entries = append(entries, libmodels.TimeEntry{
 				SpentDate: holiday.Date,
 				Hours:     float64(settings.WorkDayHours),
-				Task: models.Task{
+				Task: libmodels.Task{
 					ID:   1,
 					Name: fmt.Sprintf("%s - %s", holiday.Calendar, holiday.Description),
 				},

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/sknutsen/harvestovertimelib/v2"
@@ -26,7 +25,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	fmt.Printf("Time off tasks len: %d\n", len(getHoursRequest.TimeOffTasks))
 	token, err := refreshToken(h.Client, refreshTokenCookie.Value, h.ClientId, h.ClientSecret)
 	if err != nil {
-		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{}, libmodels.UserInfo{})
+		component := view.Index(false, models.ClientState{}, models.Settings{})
 		return component.Render(context.Background(), c.Response().Writer)
 
 	}
@@ -34,22 +33,19 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	SetCookie(c, "accesstoken", token.AccessToken, int(token.ExpiresIn))
 	SetCookie(c, "refreshtoken", token.RefreshToken, int(token.ExpiresIn))
 
-	settings := libmodels.Settings{
-		AccessToken:              token.AccessToken,
-		CarryOverTime:            0,
-		WorkDayHours:             getHoursRequest.WorkDayHours,
-		DaysInWeek:               getHoursRequest.DaysInWeek,
-		FromDate:                 getHoursRequest.FromDate,
-		ToDate:                   getHoursRequest.ToDate,
-		SimulateFullWeekAtToDate: getHoursRequest.SimulateFullWeekAtToDate,
-		WorkDays: []time.Weekday{
-			time.Monday,
-			time.Tuesday,
-			time.Wednesday,
-			time.Thursday,
-			time.Friday,
+	settings := models.Settings{
+		Settings: libmodels.Settings{
+			AccessToken:              token.AccessToken,
+			CarryOverTime:            0,
+			WorkDayHours:             getHoursRequest.WorkDayHours,
+			DaysInWeek:               len(getHoursRequest.Workdays),
+			FromDate:                 getHoursRequest.FromDate,
+			ToDate:                   getHoursRequest.ToDate,
+			SimulateFullWeekAtToDate: getHoursRequest.SimulateFullWeekAtToDate,
+			WorkDays:                 getHoursRequest.Workdays,
+			TimeOffTasks:             []libmodels.Task{},
 		},
-		TimeOffTasks: []libmodels.Task{},
+		Years: getHoursRequest.Years,
 	}
 
 	for _, taskId := range getHoursRequest.TimeOffTasks {
@@ -58,7 +54,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 		})
 	}
 
-	userInfo, err := harvestovertimelib.GetUserInfo(h.Client, settings)
+	userInfo, err := harvestovertimelib.GetUserInfo(h.Client, settings.Settings)
 
 	if err != nil {
 		userInfo = libmodels.UserInfo{}
@@ -69,7 +65,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 
 	StoreSettingsAsCookie(c, settings)
 
-	entries, err := harvestovertimelib.ListEntries(h.Client, settings)
+	entries, err := harvestovertimelib.ListEntries(h.Client, settings.Settings)
 
 	if err != nil {
 		entries = libmodels.TimeEntries{}
@@ -81,7 +77,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 		entries.TimeEntries = append(entries.TimeEntries, ConvertHolidaysToTimeEntries(settings, holidays)...)
 	}
 
-	hours := harvestovertimelib.GetTotalOvertime(entries, settings)
+	hours := harvestovertimelib.GetTotalOvertime(entries, settings.Settings)
 
 	component := view.Hours(hours)
 	return component.Render(context.Background(), c.Response().Writer)

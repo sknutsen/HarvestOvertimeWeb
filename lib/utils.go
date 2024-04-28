@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/sknutsen/harvestovertimelib/v2/lib"
-	"github.com/sknutsen/harvestovertimelib/v2/models"
+	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
+	"github.com/sknutsen/harvestovertimeweb/models"
 )
 
 func DateToString(date time.Time) string {
@@ -33,7 +34,7 @@ func DateToString(date time.Time) string {
 	return dateAsString
 }
 
-func TaskIsSelected(task models.TaskDetails, tasks []models.Task) bool {
+func TaskIsSelected(task libmodels.TaskDetails, tasks []libmodels.Task) bool {
 	for _, t := range tasks {
 		if t.ID == task.Task.ID {
 			return true
@@ -43,7 +44,7 @@ func TaskIsSelected(task models.TaskDetails, tasks []models.Task) bool {
 	return false
 }
 
-func SumHoursFromEntries(entries []models.TimeEntry) float64 {
+func SumHoursFromEntries(entries []libmodels.TimeEntry) float64 {
 	var sum float64 = 0
 
 	for _, e := range entries {
@@ -55,22 +56,28 @@ func SumHoursFromEntries(entries []models.TimeEntry) float64 {
 
 func DefaultSettings() models.Settings {
 	return models.Settings{
-		FromDate:                 fmt.Sprintf("%d-01-01", time.Now().Year()-2),
-		ToDate:                   DateToString(time.Now()),
-		DaysInWeek:               5,
-		WorkDayHours:             7.5,
-		SimulateFullWeekAtToDate: true,
-		TimeOffTasks: []models.Task{
-			{
-				ID: 10882012,
+		Settings: libmodels.Settings{
+			FromDate:                 "2021-01-01",
+			ToDate:                   DateToString(time.Now()),
+			DaysInWeek:               5,
+			WorkDayHours:             7.5,
+			SimulateFullWeekAtToDate: true,
+			TimeOffTasks: []libmodels.Task{
+				{
+					ID: 10882012,
+				},
+			},
+			WorkDays: []time.Weekday{
+				time.Monday,
+				time.Tuesday,
+				time.Wednesday,
+				time.Thursday,
+				time.Friday,
 			},
 		},
-		WorkDays: []time.Weekday{
-			time.Monday,
-			time.Tuesday,
-			time.Wednesday,
-			time.Thursday,
-			time.Friday,
+		Years: []int{
+			2024,
+			2025,
 		},
 	}
 }

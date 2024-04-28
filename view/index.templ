@@ -1,27 +1,38 @@
 package view
 
 import "fmt"
-import "github.com/sknutsen/harvestovertimelib/v2/models"
+import libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
 import "github.com/sknutsen/harvestovertimeweb/routes"
 import "github.com/sknutsen/harvestovertimeweb/lib"
+import "github.com/sknutsen/harvestovertimeweb/models"
+import "time"
+import "slices"
 
-templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings, userInfo models.UserInfo) {
-    @MainLayout(userInfo) {
+templ Index(signedIn bool, state models.ClientState, settings models.Settings) {
+    @MainLayout(state.UserInfo) {
         <div id="hours-div"></div>
         <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
             if signedIn {
                 <h2>Calculate overtime hours</h2>
-                <label for="fromDate-input">From date</label>
-                <input type="date" value={fmt.Sprint(settings.FromDate)} id="fromDate-input" name="fromDate" />
-                <label for="toDate-input">To date</label>
-                <input type="date" value={fmt.Sprint(settings.ToDate)} id="toDate-input" required name="toDate" />
-                <label for="daysInWeek-input">Number of work days in week</label>
-                <input type="number" value={fmt.Sprint(settings.DaysInWeek)} id="daysInWeek-input" required name="daysInWeek" />
-                <label for="workDayHours-input">Number of hours in work day</label>
-                <input type="number" step="0.5" value={fmt.Sprint(settings.WorkDayHours)} id="workDayHours-input" required name="workDayHours" />
-                <label for="simulateFullWeekAtToDate-input">Simulate full weeks</label>
-                <input type="checkbox" value="true" checked?={settings.SimulateFullWeekAtToDate} id="simulateFullWeekAtToDate-input" name="simulateFullWeekAtToDate" />
-                @TimeOffTasks(tasks, settings.TimeOffTasks)
+                <div id="form__inputs">
+                    @dateInput(fmt.Sprint(settings.FromDate), "fromDate", false, "From date")
+                    @dateInput(fmt.Sprint(settings.ToDate), "toDate", true, "To date")
+                    <div>
+                    </div>
+
+                    @numberInput(fmt.Sprint(settings.WorkDayHours), "workDayHours", "0.5", true, "Number of hours in work day")
+
+                    @checkboxInput(settings.SimulateFullWeekAtToDate, "simulateFullWeekAtToDate", false, "Simulate full weeks")
+                    <div>
+                    </div>
+
+                    @workdays(settings.WorkDays, []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday, time.Saturday, time.Sunday})
+
+                    @timeOffTasks(state.Tasks, settings.TimeOffTasks)
+
+                    @years(settings.Years, state.Years)
+                </div>
+
                 <button type="submit">Get Hours</button>
             } else {
                 <a href="/hours">Sign in</a>
@@ -30,20 +41,85 @@ templ Index(signedIn bool, tasks []models.TaskDetails, settings models.Settings,
     }
 }
 
+templ dateInput(
+    value string,
+    name string,
+    required bool,
+    label string,
+    ) {
+    <div class="form__input form__input--date">
+        <label for={fmt.Sprintf("%s-input", name)}>{label}</label>
+        <input type="date" value={fmt.Sprint(value)} id={fmt.Sprintf("%s-input", name)} required?={required} name={name} />
+    </div>
+}
+
+templ checkboxInput(
+    checked bool,
+    name string,
+    required bool,
+    label string,
+    ) {
+    <div class="form__input form__input--checkbox">
+        <label for={fmt.Sprintf("%s-input", name)}>{label}</label>
+        <input type="checkbox" value="true" checked?={checked} id={fmt.Sprintf("%s-input", name)} required?={required} name={name} />
+    </div>
+}
+
+templ numberInput(
+    value string,
+    name string,
+    step string,
+    required bool,
+    label string,
+    ) {
+    <div class="form__input form__input--number">
+        <label for={fmt.Sprintf("%s-input", name)}>{label}</label>
+        <input type="number" step={step} value={fmt.Sprint(value)} id={fmt.Sprintf("%s-input", name)} required?={required} name={name} />
+    </div>
+}
+
 templ Hours(overtime float64) {
 	<div id="hours-div">
 		You have { fmt.Sprint(overtime) } hours of overtime
 	</div>
 }
 
-templ TimeOffTasks(tasks []models.TaskDetails, timeOffTasks []models.Task) {
-    <div id="time-off-tasks">
+templ timeOffTasks(tasks []libmodels.TaskDetails, timeOffTasks []libmodels.Task) {
+    <div class="multiselect">
         <label>Select time off tasks</label>
-        <div id="time-off-tasks__list">
+        <div class="multiselect__list">
             for _, task := range tasks {
-                <div class="time-off-task">
+                <div class="multiselect__item">
                     <label for={fmt.Sprintf("time-off-task__%d", task.Task.ID)}>{task.Task.Name}</label>
                     <input type="checkbox" value={fmt.Sprint(task.Task.ID)} checked?={lib.TaskIsSelected(task, timeOffTasks)} id={fmt.Sprintf("time-off-task__%d", task.Task.ID)} name="timeOffTasks" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+templ workdays(selected []time.Weekday, workdayList []time.Weekday) {
+    <div class="multiselect">
+        <label>Select workdays</label>
+        <div class="multiselect__list">
+            for _, workday := range workdayList {
+                <div class="multiselect__item">
+                    <label for={fmt.Sprintf("workday__%s", workday)}>{workday.String()}</label>
+                    <input type="checkbox" value={fmt.Sprint(int(workday))} checked?={slices.Contains(selected, workday)} id={fmt.Sprintf("workday__%s", workday)} name="workdays" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+templ years(selected []int, years []int) {
+    <div class="multiselect">
+        <label>Select years to add holidays for</label>
+        <div class="multiselect__list">
+            for _, year := range years {
+                <div class="multiselect__item">
+                    <label for={fmt.Sprintf("year__%d", year)}>{fmt.Sprint(year)}</label>
+                    <input type="checkbox" value={fmt.Sprint(year)} checked?={slices.Contains(selected, year)} id={fmt.Sprintf("year__%d", year)} name="years" />
                 </div>
             }
         </div>

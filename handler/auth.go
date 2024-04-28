@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
 	"github.com/sknutsen/harvestovertimeweb/models"
 	"github.com/sknutsen/harvestovertimeweb/routes"
 	"github.com/sknutsen/harvestovertimeweb/view"
@@ -28,7 +27,7 @@ func (h *Handler) Callback(c echo.Context) error {
 
 	token, err := newToken(h.Client, authCode, h.ClientId, h.ClientSecret)
 	if err != nil {
-		component := view.Index(false, []libmodels.TaskDetails{}, libmodels.Settings{}, libmodels.UserInfo{})
+		component := view.Index(false, models.ClientState{}, models.Settings{})
 		return component.Render(context.Background(), c.Response().Writer)
 
 	}
