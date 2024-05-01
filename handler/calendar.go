@@ -10,6 +10,7 @@ import (
 	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
 	"github.com/sknutsen/harvestovertimeweb/lib"
 	"github.com/sknutsen/harvestovertimeweb/models"
+	"github.com/sknutsen/harvestovertimeweb/tasks"
 )
 
 type Holiday struct {
@@ -114,7 +115,7 @@ func ConvertHolidaysToTimeEntries(settings models.Settings, holidays []Holiday) 
 				SpentDate: holiday.Date,
 				Hours:     float64(settings.WorkDayHours),
 				Task: libmodels.Task{
-					ID:   1,
+					ID:   tasks.HolidayTask,
 					Name: fmt.Sprintf("%s - %s", holiday.Calendar, holiday.Description),
 				},
 			})

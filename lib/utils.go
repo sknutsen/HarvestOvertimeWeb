@@ -7,6 +7,7 @@ import (
 	"github.com/sknutsen/harvestovertimelib/v2/lib"
 	libmodels "github.com/sknutsen/harvestovertimelib/v2/models"
 	"github.com/sknutsen/harvestovertimeweb/models"
+	"github.com/sknutsen/harvestovertimeweb/tasks"
 )
 
 func DateToString(date time.Time) string {
@@ -34,8 +35,8 @@ func DateToString(date time.Time) string {
 	return dateAsString
 }
 
-func TaskIsSelected(task libmodels.TaskDetails, tasks []libmodels.Task) bool {
-	for _, t := range tasks {
+func TaskIsSelected(task libmodels.TaskDetails, taskList []libmodels.Task) bool {
+	for _, t := range taskList {
 		if t.ID == task.Task.ID {
 			return true
 		}
@@ -48,7 +49,9 @@ func SumHoursFromEntries(entries []libmodels.TimeEntry) float64 {
 	var sum float64 = 0
 
 	for _, e := range entries {
-		sum += e.Hours
+		if e.Task.ID != tasks.HolidayTask {
+			sum += e.Hours
+		}
 	}
 
 	return sum
