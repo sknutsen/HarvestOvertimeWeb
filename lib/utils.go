@@ -95,7 +95,10 @@ func DateIsInSpan(settings models.Settings, date string) bool {
 	to := lib.ParseDateString(settings.ToDate)
 	datetime := lib.ParseDateString(date)
 
-	return datetime.After(from) && datetime.Before(to)
+	onOrAfterFrom := datetime.Compare(from) > -1
+	onOrBeforeTo := datetime.Compare(to) < 1
+
+	return onOrAfterFrom && onOrBeforeTo
 }
 
 func DateIsWorkday(settings models.Settings, date string) bool {
