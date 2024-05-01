@@ -33,8 +33,9 @@ func (h *Handler) Index(c echo.Context) error {
 
 	settings.UserId = userInfo.ID
 	fromDate := settings.FromDate
+	toDate := settings.ToDate
 
-	settings.FromDate = fmt.Sprintf("%d-01-01", time.Now().Year()-2)
+	settings.FromDate = fmt.Sprintf("%d-01-01", 2021)
 	settings.ToDate = fmt.Sprintf("%d-12-31", time.Now().Year())
 
 	tasks, err := harvestovertimelib.ListTasks(h.Client, settings.Settings)
@@ -50,6 +51,7 @@ func (h *Handler) Index(c echo.Context) error {
 	}
 
 	settings.FromDate = fromDate
+	settings.ToDate = toDate
 
 	state := models.ClientState{
 		Tasks:    tasks,
