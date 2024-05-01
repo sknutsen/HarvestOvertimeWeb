@@ -17,7 +17,7 @@ body {
   font-weight: bold;
 }
 
-form {
+#form {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -38,8 +38,28 @@ form {
     border: 2px solid gray;
   }
 
+  svg {
+    display: none;
+    height: 64px;
+    vertical-align: middle;
+  }
+
   button:hover {
     background-color: #d0d0d0;
+  }
+}
+
+#form.htmx-request {
+  button {
+    padding: 0;
+
+    span {
+      display: none;
+    }
+
+    svg {
+      display: initial;
+    }
   }
 }
 
@@ -238,4 +258,31 @@ label {
 .details-page {
   height: 100%;
   padding-top: 45px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin2 {
+  0% {
+    stroke-dasharray: 1, 800;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 400, 400;
+    stroke-dashoffset: -200px;
+  }
+  100% {
+    stroke-dasharray: 800, 1;
+    stroke-dashoffset: -800px;
+  }
+}
+
+.spin {
+  transform-origin: center;
+  animation: spin2 1.5s ease-in-out infinite, spin 2s linear infinite;
+  animation-direction: alternate;
 }

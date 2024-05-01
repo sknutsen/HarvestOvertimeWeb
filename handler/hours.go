@@ -36,7 +36,7 @@ func (h *Handler) GetOvertimeHours(c echo.Context) error {
 	settings := models.Settings{
 		Settings: libmodels.Settings{
 			AccessToken:              token.AccessToken,
-			CarryOverTime:            0,
+			CarryOverTime:            getHoursRequest.CarryOverTime,
 			WorkDayHours:             getHoursRequest.WorkDayHours,
 			DaysInWeek:               len(getHoursRequest.Workdays),
 			FromDate:                 getHoursRequest.FromDate,

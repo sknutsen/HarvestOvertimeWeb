@@ -9,13 +9,13 @@ templ MainLayout(userInfo models.UserInfo) {
             <title>Harvest Overtime</title>
             <meta charset="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <link href="/assets/index.css?ver=37" rel="stylesheet" />
-            <script type="module" src="/assets/bundle.js" />
+            <link href="/assets/index.css?ver=38" rel="stylesheet" />
             <script src="https://unpkg.com/htmx.org/dist/htmx.min.js" />
         </head>
         <body>
 			@Nav(userInfo)
             { children... }
+            <script type="text/javascript" src="/assets/bundle.js" />
         </body>
     </html>
 }

@@ -11,7 +11,7 @@ import "slices"
 templ Index(signedIn bool, state models.ClientState, settings models.Settings) {
     @MainLayout(state.UserInfo) {
         <div id="hours-div"></div>
-        <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap">
+        <form id="form" hx-post={routes.Hours} hx-swap="outerHTML" hx-target="#hours-div" hx-ext="multi-swap" hx-on::before-request="hoursBeforeRequest()" hx-on::after-request="hoursAfterRequest()">
             if signedIn {
                 <h2>Calculate overtime hours</h2>
                 <div id="form__inputs">
@@ -20,11 +20,11 @@ templ Index(signedIn bool, state models.ClientState, settings models.Settings) {
                     <div>
                     </div>
 
-                    @numberInput(fmt.Sprint(settings.WorkDayHours), "workDayHours", "0.5", true, "Number of hours in work day")
+                    @numberInput(fmt.Sprint(settings.WorkDayHours), "workDayHours", "0.25", true, "Number of hours in work day")
 
                     @checkboxInput(settings.SimulateFullWeekAtToDate, "simulateFullWeekAtToDate", false, "Simulate full weeks")
-                    <div>
-                    </div>
+                    
+                    @numberInput(fmt.Sprint(settings.CarryOverTime), "carryOverTime", "0.25", false, "Additional hours")
 
                     @workdays(settings.WorkDays, []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday, time.Saturday, time.Sunday})
 
@@ -33,7 +33,10 @@ templ Index(signedIn bool, state models.ClientState, settings models.Settings) {
                     @years(settings.Years, state.Years)
                 </div>
 
-                <button type="submit">Get Hours</button>
+                <button id="form__submit" type="submit">
+                    @loader() 
+                    <span>Get Hours</span>
+                </button>
             } else {
                 <a href="/hours">Sign in</a>
             }
@@ -124,4 +127,13 @@ templ years(selected []int, years []int) {
             }
         </div>
     </div>
+}
+
+templ loader() {
+    <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+        <circle class="spin" cx="400" cy="400" fill="none"
+                r="200" stroke-width="44" stroke="#1219f5"
+                stroke-dasharray="946 1400"
+                stroke-linecap="round" />
+    </svg>
 }

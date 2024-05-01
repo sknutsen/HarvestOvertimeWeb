@@ -9,6 +9,7 @@ type GetHoursRequest struct {
 	ToDate                   string         `form:"toDate"`
 	Workdays                 []time.Weekday `form:"workdays"`
 	DaysInWeek               int            `form:"daysInWeek"`
+	CarryOverTime            float64        `form:"carryOverTime"`
 	WorkDayHours             float32        `form:"workDayHours"`
 	SimulateFullWeekAtToDate bool           `form:"simulateFullWeekAtToDate"`
 }
